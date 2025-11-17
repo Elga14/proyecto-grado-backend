@@ -1,0 +1,56 @@
+# DEPENDENCIAS
+node_modules/
+
+# VARIABLES DE ENTORNO (proteger credenciales)
+.env
+.env.*
+!.env.example
+
+# COMPILACIÓN / BUILD
+# (por si agregas TypeScript o bundlers en un futuro)
+dist/
+build/
+
+# LOGS
+logs/
+*.log
+npm-debug.log*
+npm-error.log*
+
+# ARCHIVOS TEMPORALES
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# SISTEMA OPERATIVO
+.DS_Store
+Thumbs.db
+
+# CONFIGURACIONES DE EDITORES
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# MONGODB LOCAL
+# (solo si usas mongo instalado localmente)
+/data/db/
+/dump/
+
+# CACHE
+.npm/
+.cache/
+.yarn/
+.pnpm-store/
+
+# TEST / REPORTES
+coverage/
+jest-html-reporters-*
+
+# ARCHIVOS DE PRODUCCIÓN (PM2, etc)
+pids/
+*.pid
+*.seed
