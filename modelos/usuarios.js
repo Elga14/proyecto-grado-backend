@@ -24,6 +24,12 @@ const usuarioSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    rol: {
+      type: String,
+      enum: ["usuario", "admin"],
+      default: "usuario"
+    },
+
   },
   {
     timestamps: true, // Registra createdAt y updatedAt automáticamente
