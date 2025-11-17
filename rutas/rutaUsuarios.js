@@ -1,10 +1,17 @@
+/*
+ * Rutas de Usuarios
+ * Gestiona las rutas de registro y login.
+ */
+
 import express from "express";
-import { crearUsuario, obtenerUsuarios } from "../controladores/controladorUsuarios.js";
+import { registrarUsuario, loginUsuario } from "../controladores/controladorUsuarios.js";
 
 const router = express.Router();
 
-// Rutas
-router.post("/", crearUsuario);     // Crear usuario
-router.get("/", obtenerUsuarios);   // Obtener lista de usuarios
+// Registrar usuario
+router.post("/registro", registrarUsuario);
+
+// Login usuario
+router.post("/login", loginUsuario);
 
 export default router;
