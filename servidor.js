@@ -9,6 +9,8 @@ import conectarBD from "./configuracion/conexionBD.js";
 // Importación de las rutas del módulo Usuarios
 import rutaUsuarios from "./rutas/rutaUsuarios.js";
 
+import rutaCursos from "./rutas/rutaCursos.js";
+
 // Cargar variables de entorno desde el archivo .env
 dotenv.config();
 
@@ -35,6 +37,8 @@ app.get("/", (req, res) => {
 
 // Rutas principales del API relacionadas con usuarios
 app.use("/api/usuarios", rutaUsuarios);
+
+app.use("/api/cursos", rutaCursos);
 
 // Puerto en el que se ejecutará el servidor (definido en .env o por defecto 5000)
 const PUERTO = process.env.PUERTO || 5000;
