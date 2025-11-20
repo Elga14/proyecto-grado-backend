@@ -1,4 +1,3 @@
-// 📁 controllers/cursoController.js
 
 import Curso from "../modelos/cursos.js";
 

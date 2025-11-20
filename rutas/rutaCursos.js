@@ -1,5 +1,3 @@
-// 📁 routes/cursoRutas.js
-
 import express from "express";
 import {
   crearCurso,

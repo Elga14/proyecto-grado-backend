@@ -1,4 +1,3 @@
-// 📁 models/curso.js
 
 import mongoose from "mongoose";
 
