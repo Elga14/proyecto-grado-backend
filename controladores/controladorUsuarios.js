@@ -1,11 +1,9 @@
 import Usuario from "../modelos/usuarios.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 /**
  * 👉 Registrar un usuario
- * - Recibe: nombre, correo, contraseña, rol
- * - Verifica si el correo ya está registrado
- * - Encripta la contraseña antes de guardar
  */
 export const registrarUsuario = async (req, res) => {
   try {
@@ -29,7 +27,12 @@ export const registrarUsuario = async (req, res) => {
 
     res.status(201).json({
       mensaje: "Usuario registrado con éxito",
-      usuario: nuevoUsuario,
+      usuario: {
+        id: nuevoUsuario._id,
+        nombre: nuevoUsuario.nombre,
+        correo: nuevoUsuario.correo,
+        rol: nuevoUsuario.rol,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -40,43 +43,78 @@ export const registrarUsuario = async (req, res) => {
 };
 
 /**
+ * 👉 Iniciar sesión
+ */
+export const iniciarSesion = async (req, res) => {
+  try {
+    const { correo, contraseña } = req.body;
+
+    if (!correo || !contraseña) {
+      return res.status(400).json({ mensaje: "Correo y contraseña son obligatorios" });
+    }
+
+    const usuario = await Usuario.findOne({ correo });
+    if (!usuario) {
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    }
+
+    const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña);
+    if (!contraseñaValida) {
+      return res.status(401).json({ mensaje: "Contraseña incorrecta" });
+    }
+
+    const token = jwt.sign(
+      { id: usuario._id, rol: usuario.rol },
+      process.env.JWT_SECRETO,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      mensaje: "Inicio de sesión exitoso",
+      token,
+      usuario: {
+        id: usuario._id,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        rol: usuario.rol,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      mensaje: "Error al iniciar sesión",
+      error: error.message,
+    });
+  }
+};
+
+/**
  * 👉 Obtener todos los usuarios
- * - Retorna todos los usuarios excepto la contraseña
  */
 export const obtenerUsuarios = async (req, res) => {
   try {
     const usuarios = await Usuario.find().select("-contraseña");
     res.status(200).json(usuarios);
   } catch (error) {
-    res.status(500).json({
-      mensaje: "Error al obtener usuarios",
-      error: error.message,
-    });
+    res.status(500).json({ mensaje: "Error al obtener usuarios", error: error.message });
   }
 };
 
 /**
- * 👉 Obtener un usuario por ID
- * - Busca un usuario por su ID
+ * 👉 Obtener usuario por ID
  */
 export const obtenerUsuarioPorId = async (req, res) => {
   try {
     const usuario = await Usuario.findById(req.params.id).select("-contraseña");
-    if (!usuario)
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    if (!usuario) return res.status(404).json({ mensaje: "Usuario no encontrado" });
 
     res.status(200).json(usuario);
   } catch (error) {
-    res.status(500).json({
-      mensaje: "Error al obtener usuario",
-      error: error.message,
-    });
+    res.status(500).json({ mensaje: "Error al obtener usuario", error: error.message });
   }
 };
 
 /**
  * 👉 Actualizar usuario
- * - Actualiza nombre, correo y rol
  */
 export const actualizarUsuario = async (req, res) => {
   try {
@@ -88,33 +126,24 @@ export const actualizarUsuario = async (req, res) => {
       { new: true }
     ).select("-contraseña");
 
-    if (!usuarioActualizado)
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    if (!usuarioActualizado) return res.status(404).json({ mensaje: "Usuario no encontrado" });
 
     res.status(200).json(usuarioActualizado);
   } catch (error) {
-    res.status(500).json({
-      mensaje: "Error al actualizar usuario",
-      error: error.message,
-    });
+    res.status(500).json({ mensaje: "Error al actualizar usuario", error: error.message });
   }
 };
 
 /**
  * 👉 Eliminar usuario
- * - Elimina un usuario por ID
  */
 export const eliminarUsuario = async (req, res) => {
   try {
     const eliminado = await Usuario.findByIdAndDelete(req.params.id);
-    if (!eliminado)
-      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    if (!eliminado) return res.status(404).json({ mensaje: "Usuario no encontrado" });
 
     res.status(200).json({ mensaje: "Usuario eliminado con éxito" });
   } catch (error) {
-    res.status(500).json({
-      mensaje: "Error al eliminar usuario",
-      error: error.message,
-    });
+    res.status(500).json({ mensaje: "Error al eliminar usuario", error: error.message });
   }
 };
