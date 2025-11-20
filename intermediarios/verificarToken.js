@@ -1,60 +1,67 @@
-/**
- * ============================================================================
- * 🛡 Middleware: verificarToken
- * ----------------------------------------------------------------------------
- * Este middleware se encarga de:
- *  - Leer el token enviado por el cliente en los encabezados.
- *  - Validar que el token tenga el formato correcto ("Bearer token").
- *  - Verificar si es un token válido usando JWT.
- *  - Si es válido, agregar los datos del usuario a `req.usuario`.
- *  - Si no es válido o no existe, devolver error 401.
- * ============================================================================
- */
+// 📁 middleware/verificarToken.js
 
 import jwt from "jsonwebtoken";
+import Usuario from "../models/usuario.js";
 
-export const verificarToken = (req, res, next) => {
+/**
+ * 👉 Middleware: verificarToken
+ * - Verifica que el usuario envíe un token válido
+ * - Decodifica el token y obtiene el ID del usuario
+ * - Busca el usuario en la base de datos y lo adjunta al request
+ */
+export const verificarToken = async (req, res, next) => {
   try {
-    // ------------------------------------------------------------------------
-    // 1️⃣ Leer el encabezado "Authorization" enviado por el cliente
-    //    Debe llegar en formato: "Bearer token_aqui"
-    // ------------------------------------------------------------------------
-    const encabezadoAutorizacion = req.headers["authorization"];
+    const encabezadoAuth = req.headers.authorization;
 
-    if (!encabezadoAutorizacion) {
-      return res.status(401).json({
-        mensaje: "Acceso denegado. No se envió el token de autorización."
-      });
+    if (!encabezadoAuth || !encabezadoAuth.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ mensaje: "No se proporcionó un token válido" });
     }
 
-    // ------------------------------------------------------------------------
-    // 2️⃣ Extraer solo el token limpio sin la palabra "Bearer"
-    // ------------------------------------------------------------------------
-    const token = encabezadoAutorizacion.split(" ")[1];
+    const token = encabezadoAuth.split(" ")[1];
 
-    if (!token) {
-      return res.status(401).json({
-        mensaje: "Formato de token inválido. Debe enviarse como: Bearer token"
-      });
+    const tokenDecodificado = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Buscar al usuario vinculado al token
+    const usuario = await Usuario.findById(tokenDecodificado.id).select(
+      "-contraseña"
+    );
+
+    if (!usuario) {
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
     }
 
-    // ------------------------------------------------------------------------
-    // 3️⃣ Verificar el token usando nuestra clave secreta almacenada en .env
-    // ------------------------------------------------------------------------
-    const datosUsuario = jwt.verify(token, process.env.JWT_SECRETO);
+    // Guardamos el usuario autenticado en la request
+    req.usuario = usuario;
 
-    // Guardar datos del usuario en la petición para uso posterior
-    req.usuario = datosUsuario;
-
-    // ------------------------------------------------------------------------
-    // 4️⃣ Continuar a la siguiente función del flujo de la ruta
-    // ------------------------------------------------------------------------
     next();
-
   } catch (error) {
-    return res.status(401).json({
-      mensaje: "Token inválido o expirado.",
-      error: error.message
+    console.error("Error en verificarToken:", error.message);
+    res.status(403).json({
+      mensaje: "Token inválido o expirado",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * 👉 Middleware: verificarAdministrador
+ * - Verifica que el usuario que hace la petición tenga rol de administrador
+ */
+export const verificarAdministrador = (req, res, next) => {
+  try {
+    if (!req.usuario || req.usuario.rol !== "admin") {
+      return res
+        .status(403)
+        .json({ mensaje: "Acceso denegado: solo administradores" });
+    }
+
+    next();
+  } catch (error) {
+    res.status(500).json({
+      mensaje: "Error al verificar el rol de administrador",
+      error: error.message,
     });
   }
 };

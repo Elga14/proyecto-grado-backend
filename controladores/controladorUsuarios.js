@@ -1,101 +1,120 @@
-/**
- * Controlador Usuarios
- * - registrarUsuario
- * - loginUsuario
- * - obtenerPerfil
- */
-
 import Usuario from "../modelos/usuarios.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 /**
- * Registrar usuario
- * - Si no envían rol, queda "usuario" por defecto.
+ * 👉 Registrar un usuario
+ * - Recibe: nombre, correo, contraseña, rol
+ * - Verifica si el correo ya está registrado
+ * - Encripta la contraseña antes de guardar
  */
 export const registrarUsuario = async (req, res) => {
   try {
     const { nombre, correo, contraseña, rol } = req.body;
 
-    // Verificar existencia
-    const existe = await Usuario.findOne({ correo });
-    if (existe) {
-      return res.status(400).json({ mensaje: "El correo ya está registrado." });
+    const usuarioExistente = await Usuario.findOne({ correo });
+    if (usuarioExistente) {
+      return res.status(400).json({ mensaje: "El correo ya está registrado" });
     }
 
-    // Encriptar contraseña
-    const salt = await bcrypt.genSalt(10);
-    const contraseñaHash = await bcrypt.hash(contraseña, salt);
+    const contraseñaEncriptada = await bcrypt.hash(contraseña, 10);
 
-    // Crear usuario (rol opcional, por seguridad no permitir rol admin desde frontend)
-    const nuevo = new Usuario({
+    const nuevoUsuario = new Usuario({
       nombre,
       correo,
-      contraseña: contraseñaHash,
-      // Si por alguna razón envían rol y eres estrictamente admin-only al crear, puedes ignorarlo.
-      rol: rol === "admin" ? "usuario" : rol // evita asignar admin desde el body
+      contraseña: contraseñaEncriptada,
+      rol,
     });
 
-    await nuevo.save();
+    await nuevoUsuario.save();
 
-    return res.status(201).json({ mensaje: "Usuario registrado correctamente." });
+    res.status(201).json({
+      mensaje: "Usuario registrado con éxito",
+      usuario: nuevoUsuario,
+    });
   } catch (error) {
-    return res.status(500).json({ mensaje: "Error al registrar usuario.", error: error.message });
+    res.status(500).json({
+      mensaje: "Error al registrar usuario",
+      error: error.message,
+    });
   }
 };
 
 /**
- * Login usuario
- * Devuelve token con id y rol
+ * 👉 Obtener todos los usuarios
+ * - Retorna todos los usuarios excepto la contraseña
  */
-export const loginUsuario = async (req, res) => {
+export const obtenerUsuarios = async (req, res) => {
   try {
-    const { correo, contraseña } = req.body;
-
-    const usuario = await Usuario.findOne({ correo });
-    if (!usuario) {
-      return res.status(400).json({ mensaje: "Correo o contraseña incorrectos." });
-    }
-
-    const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña);
-    if (!contraseñaValida) {
-      return res.status(400).json({ mensaje: "Correo o contraseña incorrectos." });
-    }
-
-    // Generar token incluyendo rol
-    const payload = {
-      id: usuario._id,
-      rol: usuario.rol
-    };
-
-    const token = jwt.sign(payload, process.env.JWT_SECRETO, { expiresIn: "7d" });
-
-    return res.json({
-      mensaje: "Inicio de sesión exitoso",
-      token,
-      usuario: {
-        id: usuario._id,
-        nombre: usuario.nombre,
-        correo: usuario.correo,
-        rol: usuario.rol
-      }
-    });
+    const usuarios = await Usuario.find().select("-contraseña");
+    res.status(200).json(usuarios);
   } catch (error) {
-    return res.status(500).json({ mensaje: "Error al iniciar sesión.", error: error.message });
+    res.status(500).json({
+      mensaje: "Error al obtener usuarios",
+      error: error.message,
+    });
   }
 };
 
 /**
- * Obtener perfil del usuario autenticado
+ * 👉 Obtener un usuario por ID
+ * - Busca un usuario por su ID
  */
-export const obtenerPerfil = async (req, res) => {
+export const obtenerUsuarioPorId = async (req, res) => {
   try {
-    const usuario = await Usuario.findById(req.usuario.id).select("-contraseña");
-    if (!usuario) {
-      return res.status(404).json({ mensaje: "Usuario no encontrado." });
-    }
-    return res.json({ mensaje: "Perfil del usuario autenticado", datos: usuario });
+    const usuario = await Usuario.findById(req.params.id).select("-contraseña");
+    if (!usuario)
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+
+    res.status(200).json(usuario);
   } catch (error) {
-    return res.status(500).json({ mensaje: "Error al obtener el perfil.", error: error.message });
+    res.status(500).json({
+      mensaje: "Error al obtener usuario",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * 👉 Actualizar usuario
+ * - Actualiza nombre, correo y rol
+ */
+export const actualizarUsuario = async (req, res) => {
+  try {
+    const { nombre, correo, rol } = req.body;
+
+    const usuarioActualizado = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      { nombre, correo, rol },
+      { new: true }
+    ).select("-contraseña");
+
+    if (!usuarioActualizado)
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+
+    res.status(200).json(usuarioActualizado);
+  } catch (error) {
+    res.status(500).json({
+      mensaje: "Error al actualizar usuario",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * 👉 Eliminar usuario
+ * - Elimina un usuario por ID
+ */
+export const eliminarUsuario = async (req, res) => {
+  try {
+    const eliminado = await Usuario.findByIdAndDelete(req.params.id);
+    if (!eliminado)
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+
+    res.status(200).json({ mensaje: "Usuario eliminado con éxito" });
+  } catch (error) {
+    res.status(500).json({
+      mensaje: "Error al eliminar usuario",
+      error: error.message,
+    });
   }
 };

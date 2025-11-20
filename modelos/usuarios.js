@@ -1,8 +1,3 @@
-/**
- * Modelo Usuario
- * Define la estructura de los documentos de usuario en MongoDB.
- */
-
 import mongoose from "mongoose";
 
 const usuarioSchema = new mongoose.Schema(
@@ -10,30 +5,23 @@ const usuarioSchema = new mongoose.Schema(
     nombre: {
       type: String,
       required: true,
-      trim: true,
     },
     correo: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
-      trim: true,
     },
     contraseña: {
       type: String,
       required: true,
-      minlength: 6,
     },
     rol: {
       type: String,
       enum: ["usuario", "admin"],
-      default: "usuario"
+      default: "usuario",
     },
-
   },
-  {
-    timestamps: true, // Registra createdAt y updatedAt automáticamente
-  }
+  { timestamps: true }
 );
 
 export default mongoose.model("Usuario", usuarioSchema);
