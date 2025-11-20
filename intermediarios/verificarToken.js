@@ -21,7 +21,7 @@ export const verificarToken = async (req, res, next) => {
 
     const token = encabezadoAuth.split(" ")[1];
 
-    const tokenDecodificado = jwt.verify(token, process.env.JWT_SECRET);
+    const tokenDecodificado = jwt.verify(token, process.env.JWT_SECRETO)
 
     // Buscar al usuario vinculado al token
     const usuario = await Usuario.findById(tokenDecodificado.id).select(
