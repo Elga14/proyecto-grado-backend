@@ -1,7 +1,7 @@
 // 📁 middleware/verificarToken.js
 
 import jwt from "jsonwebtoken";
-import Usuario from "../models/usuario.js";
+import Usuario from "../modelos/usuarios.js";
 
 /**
  * 👉 Middleware: verificarToken
