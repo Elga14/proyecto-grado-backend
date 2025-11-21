@@ -1,6 +1,6 @@
 import Pedido from "../modelos/pedidos.js";
 
-// crear una nueva orden (compra)
+// Crear una nueva orden (compra)
 export const crearPedido = async (req, res) => {
   try {
     const { cursos, total } = req.body;
@@ -35,15 +35,19 @@ export const crearPedido = async (req, res) => {
   }
 };
 
-
 // Obtener los cursos comprados por un usuario
 export const obtenerCursosDelUsuario = async (req, res) => {
   try {
-    const usuarioId = req.user.id;
+    const usuarioId = req.usuario?._id;
+
+    if (!usuarioId) {
+      return res.status(401).json({ mensaje: "Usuario no autenticado" });
+    }
 
     const pedidos = await Pedido.find({ usuario: usuarioId }).populate("cursos");
 
     const cursosComprados = [];
+
     pedidos.forEach((pedido) => {
       pedido.cursos.forEach((curso) => {
         if (!cursosComprados.find((c) => c._id.toString() === curso._id.toString())) {
@@ -54,10 +58,11 @@ export const obtenerCursosDelUsuario = async (req, res) => {
 
     res.status(200).json(cursosComprados);
   } catch (error) {
-    console.error("Error al obtener cursos:", error.message);
+    console.error("❌ Error al obtener cursos:", error.message);
     res.status(500).json({
       mensaje: "Error al obtener los cursos del usuario",
       error: error.message,
     });
   }
 };
+

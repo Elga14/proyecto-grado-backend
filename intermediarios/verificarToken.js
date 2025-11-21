@@ -34,6 +34,7 @@ export const verificarToken = async (req, res, next) => {
 
     // Guardamos el usuario autenticado en la request
     req.usuario = usuario;
+    
 
     next();
   } catch (error) {
