@@ -14,7 +14,9 @@ import conectarBD from "./configuracion/conexionBD.js";
 // 📁 Importación de rutas
 // -----------------------------------------------
 import rutaUsuarios from "./rutas/rutaUsuarios.js";
-import rutaCursos from "./rutas/rutaCursos.js"; // 👈 AÑADIDA
+import rutaCursos from "./rutas/rutaCursos.js"; 
+import rutaPedidos from "./rutas/rutaPedidos.js"; // 👈 AÑADIDA
+
 // -----------------------------------------------
 // 📌 Configuración inicial
 // -----------------------------------------------
@@ -36,7 +38,8 @@ app.get("/", (req, res) => {
 // 📌 Registro de rutas principales del API
 // -----------------------------------------------
 app.use("/api/usuarios", rutaUsuarios);
-app.use("/api/cursos", rutaCursos); // 👈 AÑADIDA
+app.use("/api/cursos", rutaCursos);
+app.use("/api/pedidos", rutaPedidos); // 👈 AÑADIDA
 
 // -----------------------------------------------
 // 📌 Servidor en funcionamiento
