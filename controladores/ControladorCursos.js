@@ -1,12 +1,8 @@
 
 import Curso from "../modelos/cursos.js";
 
-/**
- * 👉 Crear un nuevo curso
- * - Recibe los datos desde el body
- * - Valida los campos obligatorios
- * - Guarda el curso en la base de datos
- */
+// Crear un nuevo curso
+
 export const crearCurso = async (req, res) => {
   try {
     const {
@@ -36,7 +32,7 @@ export const crearCurso = async (req, res) => {
       categoria,
       imagenPortada,
       contenido,
-      instructor: instructor || req.usuario?.id, // el instructor es el usuario logueado
+      instructor: instructor || req.usuario?.id, 
     });
 
     await nuevoCurso.save();
@@ -54,9 +50,7 @@ export const crearCurso = async (req, res) => {
   }
 };
 
-/**
- * 👉 Obtener todos los cursos
- */
+// Obtener todos los cursos
 export const obtenerCursos = async (req, res) => {
   try {
     const cursos = await Curso.find().populate("instructor", "nombre email");
@@ -70,9 +64,7 @@ export const obtenerCursos = async (req, res) => {
   }
 };
 
-/**
- * 👉 Obtener un curso por ID
- */
+// Obtener curso por ID
 export const obtenerCursoPorId = async (req, res) => {
   try {
     const curso = await Curso.findById(req.params.id).populate(
@@ -93,9 +85,7 @@ export const obtenerCursoPorId = async (req, res) => {
   }
 };
 
-/**
- * 👉 Actualizar curso
- */
+// Actualizar curso
 export const actualizarCurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -120,9 +110,7 @@ export const actualizarCurso = async (req, res) => {
   }
 };
 
-/**
- * 👉 Eliminar curso
- */
+// Eliminar curso
 export const eliminarCurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -142,9 +130,7 @@ export const eliminarCurso = async (req, res) => {
   }
 };
 
-/**
- * 👉 Obtener solo el contenido del curso (módulos y lecciones)
- */
+// Obtener contenido del curso
 export const obtenerContenidoCurso = async (req, res) => {
   try {
     const curso = await Curso.findById(req.params.id);

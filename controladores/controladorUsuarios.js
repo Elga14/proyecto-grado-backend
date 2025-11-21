@@ -2,9 +2,9 @@ import Usuario from "../modelos/usuarios.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-/**
- * 👉 Registrar un usuario
- */
+
+ // Registrar un usuario
+
 export const registrarUsuario = async (req, res) => {
   try {
     const { nombre, correo, contraseña, rol } = req.body;
@@ -42,9 +42,8 @@ export const registrarUsuario = async (req, res) => {
   }
 };
 
-/**
- * 👉 Iniciar sesión
- */
+// Iniciar sesión de usuario
+
 export const iniciarSesion = async (req, res) => {
   try {
     const { correo, contraseña } = req.body;
@@ -87,9 +86,7 @@ export const iniciarSesion = async (req, res) => {
   }
 };
 
-/**
- * 👉 Obtener todos los usuarios
- */
+// Obtener todos los usuarios
 export const obtenerUsuarios = async (req, res) => {
   try {
     const usuarios = await Usuario.find().select("-contraseña");
@@ -99,9 +96,7 @@ export const obtenerUsuarios = async (req, res) => {
   }
 };
 
-/**
- * 👉 Obtener usuario por ID
- */
+// Obtener usuario por ID
 export const obtenerUsuarioPorId = async (req, res) => {
   try {
     const usuario = await Usuario.findById(req.params.id).select("-contraseña");
@@ -113,9 +108,7 @@ export const obtenerUsuarioPorId = async (req, res) => {
   }
 };
 
-/**
- * 👉 Actualizar usuario
- */
+// Actualizar usuario
 export const actualizarUsuario = async (req, res) => {
   try {
     const { nombre, correo, rol } = req.body;
@@ -134,9 +127,7 @@ export const actualizarUsuario = async (req, res) => {
   }
 };
 
-/**
- * 👉 Eliminar usuario
- */
+// Eliminar usuario
 export const eliminarUsuario = async (req, res) => {
   try {
     const eliminado = await Usuario.findByIdAndDelete(req.params.id);

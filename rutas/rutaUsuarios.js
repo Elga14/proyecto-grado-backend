@@ -1,7 +1,7 @@
 import express from "express";
 import {
   registrarUsuario,
-  iniciarSesion, // 👈 importamos la función de login
+  iniciarSesion, 
   obtenerUsuarios,
   obtenerUsuarioPorId,
   actualizarUsuario,
@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Rutas de usuarios
 router.post("/registrar", registrarUsuario);
-router.post("/login", iniciarSesion); // 👈 esta ruta resuelve tu 500
+router.post("/login", iniciarSesion); 
 router.get("/", obtenerUsuarios);
 router.get("/:id", obtenerUsuarioPorId);
 router.put("/:id", actualizarUsuario);

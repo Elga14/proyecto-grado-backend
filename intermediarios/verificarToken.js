@@ -1,10 +1,8 @@
-// intermediarios/verificarToken.js
-
 import jwt from "jsonwebtoken";
 import Usuario from "../modelos/usuarios.js";
 
 /**
- * 👉 Middleware: verificarToken
+ *    verificarToken
  * - Verifica que el usuario envíe un token válido
  * - Decodifica el token y obtiene el ID del usuario
  * - Busca el usuario en la base de datos y lo adjunta al request
@@ -47,7 +45,6 @@ export const verificarToken = async (req, res, next) => {
 };
 
 /**
- * 👉 Middleware: verificarAdministrador
  * - Verifica que el usuario que hace la petición tenga rol de administrador
  */
 export const verificarAdministrador = (req, res, next) => {
