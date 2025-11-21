@@ -1,4 +1,4 @@
-// 📁 middleware/verificarToken.js
+// intermediarios/verificarToken.js
 
 import jwt from "jsonwebtoken";
 import Usuario from "../modelos/usuarios.js";

@@ -4,7 +4,7 @@ import Pedido from "../modelos/pedidos.js";
 export const crearPedido = async (req, res) => {
   try {
     const { cursos, total } = req.body;
-    const usuarioId = req.user?.id;
+    const usuarioId = req.usuario?._id; // <-- CORRECCIÓN: antes era req.user?.id
 
     if (!usuarioId) {
       return res.status(401).json({ mensaje: "Usuario no autenticado" });
@@ -65,4 +65,3 @@ export const obtenerCursosDelUsuario = async (req, res) => {
     });
   }
 };
-
